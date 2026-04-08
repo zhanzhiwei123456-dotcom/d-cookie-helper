@@ -1,5 +1,3 @@
-# d-cookie-helper
-京东Cookie一键配置到青龙面板 - 油猴脚本
 # 京东Cookie助手 - 青龙面板自动配置
 
 > 一键获取京东Cookie并自动配置到青龙面板，省时省力！
@@ -27,8 +25,8 @@
 
 ### 方法一：GreasyFork 安装（推荐）
 
-1. 访问 [GreasyFork 脚本页面](https://greasyfork.org)
-2. 点击搜索京东Cookie，"安装此脚本"
+1. 访问 [GreasyFork 脚本页面](https://greasyfork.org/scripts/你的脚本ID)
+2. 点击"安装此脚本"
 3. 浏览器扩展会自动识别并安装
 
 ### 方法二：手动安装
