@@ -18,7 +18,7 @@
    - Edge: https://microsoftedge.microsoft.com/addons/detail/tampermonkey
    - Firefox: https://addons.mozilla.org/firefox/addon/tampermonkey/
 
-之后点击油猴图标，选管理面板，选设置标签，配置模式选「高级」，在下方的安全标签
+之后点击油猴图标，选管理面板，选设置标签，配置模式选「高级」，在下方的安全标签"允许脚本访问 Cookie"需要切换到"All"，不然无法抓取到Cookie
 
 2. 已部署 **青龙面板**
    - 如果还没有安装青龙面板，推荐使用 Docker 部署
