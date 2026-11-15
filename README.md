@@ -44,7 +44,7 @@
 ### 方法二：手动安装
 
 1. 一键安装链接（Tampermonkey 会直接弹出安装页）：
-   https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/d-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
+   https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/jd-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
 2. 或下载本仓库中的 `jd-cookie-helper.user.js` 文件
 3. 打开 Tampermonkey 扩展管理页面
 4. 点击"实用工具"选项卡

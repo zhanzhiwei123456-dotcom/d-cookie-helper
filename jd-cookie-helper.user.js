@@ -19,8 +19,8 @@
 // @run-at       document-idle
 // @noframes
 // @license      MIT
-// @updateURL    https://raw.githubusercontent.com/junyi5d/d-cookie-helper/main/jd-cookie-helper.user.js
-// @downloadURL  https://raw.githubusercontent.com/junyi5d/d-cookie-helper/main/jd-cookie-helper.user.js
+// @updateURL    https://raw.githubusercontent.com/junyi5d/jd-cookie-helper/main/jd-cookie-helper.user.js
+// @downloadURL  https://raw.githubusercontent.com/junyi5d/jd-cookie-helper/main/jd-cookie-helper.user.js
 // ==/UserScript==
 
 (function () {
