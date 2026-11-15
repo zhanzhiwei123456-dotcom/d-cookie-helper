@@ -1,10 +1,8 @@
 // ==UserScript==
 // @name         京东Cookie一键配置到青龙
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.2.0
 // @description  一键获取京东Cookie并自动配置到青龙面板，支持电脑端和移动端
-// Tampermonkey需5.3+，在设置-配置模式切换到「高级」，在安全标签栏，允许脚本访问 Cookie选All
-// 打开`https://home.m.jd.com/myJd/newhome.action` 登录后，点右上角 🍑 →「提取Cookie」→「发送到青龙」
 // @author       JD Helper
 // @match        https://jd.com/*
 // @match        https://*.jd.com/*
@@ -21,8 +19,8 @@
 // @run-at       document-idle
 // @noframes
 // @license      MIT
-// @updateURL    https://raw.githubusercontent.com/junyi5d/d-cookie-helper/main/jd-cookie-helper.user.js
-// @downloadURL  https://raw.githubusercontent.com/junyi5d/d-cookie-helper/main/jd-cookie-helper.user.js
+// @updateURL    https://raw.githubusercontent.com/zhanzhiwei123456-dotcom/d-cookie-helper/main/jd-cookie-helper.user.js
+// @downloadURL  https://raw.githubusercontent.com/zhanzhiwei123456-dotcom/d-cookie-helper/main/jd-cookie-helper.user.js
 // ==/UserScript==
 
 (function () {
@@ -494,6 +492,416 @@
                 }
             `);
 
+            // ===== v1.2 新界面样式（覆盖上方基础样式） =====
+            GM_addStyle(`
+                .jd-cookie-overlay {
+                    background: rgba(17, 24, 39, 0.45);
+                    backdrop-filter: blur(2px);
+                    -webkit-backdrop-filter: blur(2px);
+                }
+                .jd-cookie-helper-btn {
+                    width: 54px;
+                    height: 54px;
+                    background: linear-gradient(135deg, #e2231a 0%, #ff5b4d 100%);
+                    box-shadow: 0 10px 24px rgba(226, 35, 26, 0.35);
+                    border: 2px solid rgba(255, 255, 255, 0.9);
+                }
+                .jd-cookie-helper-btn:hover {
+                    transform: scale(1.08) rotate(-4deg);
+                    box-shadow: 0 14px 30px rgba(226, 35, 26, 0.45);
+                }
+                .jd-cookie-panel {
+                    padding: 0;
+                    width: 480px;
+                    max-width: calc(100vw - 24px);
+                    max-height: 88vh;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    display: none;
+                    flex-direction: column;
+                    background: #ffffff;
+                    color: #1f2329;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+                    box-shadow: 0 24px 70px rgba(16, 24, 40, 0.28), 0 2px 8px rgba(16, 24, 40, 0.08);
+                    transform: translate(-50%, -50%);
+                }
+                .jd-cookie-panel.show {
+                    display: flex;
+                    animation: jdPanelIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+                }
+                @keyframes jdPanelIn {
+                    from { opacity: 0; transform: translate(-50%, -50%) scale(0.94); }
+                    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                }
+                .jd-cookie-panel .panel-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 20px 56px 14px 22px;
+                    background: linear-gradient(135deg, #fff5f4 0%, #ffffff 62%);
+                }
+                .jd-cookie-panel .panel-logo {
+                    width: 44px;
+                    height: 44px;
+                    flex: 0 0 44px;
+                    border-radius: 14px;
+                    background: linear-gradient(135deg, #e2231a 0%, #ff6f61 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 22px;
+                    box-shadow: 0 8px 18px rgba(226, 35, 26, 0.28);
+                }
+                .jd-cookie-panel .panel-title {
+                    min-width: 0;
+                }
+                .jd-cookie-panel .panel-title h3 {
+                    margin: 0;
+                    color: #1f2329;
+                    font-size: 17px;
+                    font-weight: 700;
+                    line-height: 1.3;
+                    display: block;
+                }
+                .jd-cookie-panel .panel-title p {
+                    margin: 3px 0 0;
+                    color: #8a919c;
+                    font-size: 12px;
+                    line-height: 1.4;
+                }
+                .jd-cookie-panel .panel-badge {
+                    margin-left: auto;
+                    flex: 0 0 auto;
+                    padding: 3px 9px;
+                    border-radius: 999px;
+                    background: #fff0ef;
+                    border: 1px solid #ffd9d6;
+                    color: #e2231a;
+                    font-size: 11px;
+                    font-weight: 600;
+                }
+                .jd-cookie-panel .close-btn {
+                    position: absolute;
+                    top: 14px;
+                    right: 14px;
+                    width: 30px;
+                    height: 30px;
+                    flex: 0 0 auto;
+                    padding: 0;
+                    border-radius: 50%;
+                    background: #f2f3f5;
+                    color: #8a919c;
+                    font-size: 20px;
+                    line-height: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 2;
+                    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+                }
+                .jd-cookie-panel .close-btn:hover {
+                    background: #e9eaec;
+                    color: #1f2329;
+                    transform: rotate(90deg);
+                }
+                .jd-cookie-panel .tab-bar {
+                    display: flex;
+                    gap: 6px;
+                    margin: 4px 22px 0;
+                    padding: 5px;
+                    background: #f5f6f7;
+                    border-radius: 13px;
+                }
+                .jd-cookie-panel .tab-btn {
+                    flex: 1;
+                    padding: 9px 8px;
+                    border: none;
+                    border-radius: 9px;
+                    background: transparent;
+                    color: #6b7280;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+                }
+                .jd-cookie-panel .tab-btn:hover {
+                    color: #1f2329;
+                }
+                .jd-cookie-panel .tab-btn.active {
+                    background: #ffffff;
+                    color: #e2231a;
+                    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.10);
+                }
+                .jd-cookie-panel .panel-body {
+                    flex: 1 1 auto;
+                    min-height: 0;
+                    padding: 14px 22px 20px;
+                    overflow-y: auto;
+                    scrollbar-width: thin;
+                }
+                .jd-cookie-panel .panel-body::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .jd-cookie-panel .panel-body::-webkit-scrollbar-thumb {
+                    background: #dcdfe4;
+                    border-radius: 3px;
+                }
+                .jd-cookie-panel .tab-panel {
+                    display: none;
+                }
+                .jd-cookie-panel .tab-panel.active {
+                    display: block;
+                    animation: jdTabIn 0.22s ease;
+                }
+                @keyframes jdTabIn {
+                    from { opacity: 0; transform: translateY(5px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .jd-cookie-panel #status-box:empty {
+                    display: none;
+                }
+                .jd-cookie-panel .status {
+                    padding: 11px 13px;
+                    border-radius: 12px;
+                    margin: 0 0 12px;
+                    font-size: 12.5px;
+                    line-height: 1.6;
+                    border: 1px solid transparent;
+                    animation: jdTabIn 0.2s ease;
+                }
+                .jd-cookie-panel .status.success {
+                    background: #f0fbf3;
+                    color: #11693b;
+                    border-color: #c9efd6;
+                }
+                .jd-cookie-panel .status.error {
+                    background: #fff2f1;
+                    color: #a61b14;
+                    border-color: #ffd6d3;
+                }
+                .jd-cookie-panel .status.warning {
+                    background: #fff9e8;
+                    color: #8a6100;
+                    border-color: #ffe9ad;
+                }
+                .jd-cookie-panel .account-card {
+                    background: #fafbfc;
+                    border: 1px solid #eef0f3;
+                    border-radius: 14px;
+                    padding: 2px 14px;
+                    margin-bottom: 12px;
+                }
+                .jd-cookie-panel .cookie-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px 0;
+                    border-bottom: 1px solid #eef0f3;
+                    font-size: 13px;
+                }
+                .jd-cookie-panel .cookie-info:last-child {
+                    border-bottom: none;
+                }
+                .jd-cookie-panel .cookie-info span:first-child {
+                    color: #8a919c;
+                    flex: 0 0 auto;
+                }
+                .jd-cookie-panel .cookie-info span:last-child {
+                    color: #1f2329;
+                    font-weight: 600;
+                    text-align: right;
+                    word-break: break-all;
+                }
+                .jd-cookie-panel .cookie-preview {
+                    background: #f7f8fa;
+                    border: 1px dashed #e3e6ea;
+                    border-radius: 12px;
+                    padding: 12px;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                    font-size: 11px;
+                    line-height: 1.6;
+                    max-height: 120px;
+                    overflow: auto;
+                    word-break: break-all;
+                    margin: 0 0 2px;
+                    color: #667085;
+                }
+                .jd-cookie-panel button {
+                    flex: 1;
+                    padding: 11px 14px;
+                    border: none;
+                    border-radius: 11px;
+                    font-size: 13.5px;
+                    font-weight: 600;
+                    font-family: inherit;
+                    cursor: pointer;
+                    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+                }
+                .jd-cookie-panel .btn-group {
+                    display: flex;
+                    gap: 10px;
+                    margin-top: 12px;
+                }
+                .jd-cookie-panel .btn-primary {
+                    background: linear-gradient(135deg, #e2231a 0%, #ff5b4d 100%);
+                    color: #ffffff;
+                    box-shadow: 0 6px 16px rgba(226, 35, 26, 0.25);
+                }
+                .jd-cookie-panel .btn-primary:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 9px 22px rgba(226, 35, 26, 0.32);
+                    opacity: 1;
+                }
+                .jd-cookie-panel .btn-primary:active {
+                    transform: translateY(0);
+                }
+                .jd-cookie-panel .btn-primary.sending {
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+                .jd-cookie-panel .btn-secondary {
+                    background: #f2f3f5;
+                    color: #3f4650;
+                }
+                .jd-cookie-panel .btn-secondary:hover {
+                    background: #e9ebee;
+                }
+                .jd-cookie-panel .btn-ghost {
+                    background: #ffffff;
+                    color: #5a6270;
+                    border: 1px solid #e3e6ea;
+                }
+                .jd-cookie-panel .btn-ghost:hover {
+                    background: #fff7f6;
+                    border-color: #ffc9c4;
+                    color: #e2231a;
+                }
+                .jd-cookie-panel .btn-full {
+                    width: 100%;
+                    flex: none;
+                }
+                .jd-cookie-panel .manual-box {
+                    margin-top: 14px;
+                    border: 1px solid #eef0f3;
+                    border-radius: 12px;
+                    background: #fafbfc;
+                    overflow: hidden;
+                }
+                .jd-cookie-panel .manual-box summary {
+                    list-style: none;
+                    cursor: pointer;
+                    padding: 11px 14px;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    color: #6b7280;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                .jd-cookie-panel .manual-box summary::-webkit-details-marker {
+                    display: none;
+                }
+                .jd-cookie-panel .manual-box summary::after {
+                    content: "⌄";
+                    color: #9aa1ab;
+                    font-size: 14px;
+                    transition: transform 0.2s ease;
+                }
+                .jd-cookie-panel .manual-box[open] summary::after {
+                    transform: rotate(180deg);
+                }
+                .jd-cookie-panel .manual-inner {
+                    padding: 0 14px 14px;
+                }
+                .jd-cookie-panel .manual-inner textarea {
+                    width: 100%;
+                    min-height: 64px;
+                    padding: 10px 12px;
+                    margin-bottom: 8px;
+                    border: 1px solid #e3e6ea;
+                    border-radius: 10px;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                    font-size: 12px;
+                    line-height: 1.5;
+                    color: #1f2329;
+                    background: #ffffff;
+                    box-sizing: border-box;
+                    resize: vertical;
+                }
+                .jd-cookie-panel .manual-inner textarea:focus {
+                    outline: none;
+                    border-color: #ff8a80;
+                    box-shadow: 0 0 0 3px rgba(226, 35, 26, 0.10);
+                }
+                .jd-cookie-panel .field {
+                    margin-bottom: 13px;
+                }
+                .jd-cookie-panel .field label {
+                    display: block;
+                    margin-bottom: 6px;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    color: #5a6270;
+                }
+                .jd-cookie-panel .field input {
+                    width: 100%;
+                    height: 42px;
+                    padding: 0 12px;
+                    border: 1px solid #e3e6ea;
+                    border-radius: 11px;
+                    background: #ffffff;
+                    color: #1f2329;
+                    font-size: 13.5px;
+                    box-sizing: border-box;
+                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                }
+                .jd-cookie-panel .field input:focus {
+                    outline: none;
+                    border-color: #ff8a80;
+                    box-shadow: 0 0 0 3px rgba(226, 35, 26, 0.10);
+                }
+                .jd-cookie-panel .hint {
+                    margin-top: 13px;
+                    padding: 11px 13px;
+                    border: 1px solid #eef0f3;
+                    border-radius: 12px;
+                    background: #fafbfc;
+                    color: #8a919c;
+                    font-size: 12px;
+                    line-height: 1.7;
+                }
+                .jd-cookie-panel .sponsor-box {
+                    margin-top: 18px;
+                    padding-top: 14px;
+                    border-top: 1px dashed #e9ebee;
+                    text-align: center;
+                }
+                .jd-cookie-panel .sponsor-box p {
+                    margin: 0 0 8px;
+                    font-size: 11.5px;
+                    color: #9aa1ab;
+                }
+                .jd-cookie-panel .btn-sponsor {
+                    flex: none;
+                    padding: 8px 20px;
+                    border-radius: 999px;
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+                    color: #ffffff;
+                    font-size: 12.5px;
+                    box-shadow: 0 4px 12px rgba(238, 90, 90, 0.25);
+                }
+                .jd-cookie-panel .btn-sponsor:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 7px 16px rgba(238, 90, 90, 0.32);
+                }
+                .jd-sponsor-modal {
+                    border-radius: 20px;
+                    padding: 28px 26px;
+                    box-shadow: 0 24px 70px rgba(16, 24, 40, 0.30);
+                }
+            `);
+
             // 创建按钮
             const btn = document.createElement('button');
             btn.className = 'jd-cookie-helper-btn';
@@ -510,64 +918,92 @@
             const panel = document.createElement('div');
             panel.className = 'jd-cookie-panel';
             panel.innerHTML = `
-                <button class="close-btn">&times;</button>
-                <h3>🍑 京东Cookie助手</h3>
+                <button class="close-btn" aria-label="关闭">&times;</button>
 
-                <div class="cookie-info">
-                    <span>账号</span>
-                    <span id="jd-pin">未检测到登录</span>
-                </div>
-                <div class="cookie-info">
-                    <span>Cookie状态</span>
-                    <span id="jd-cookie-status" style="color: #ffc107;">⏳ 检测中...</span>
-                </div>
-                <div class="cookie-info">
-                    <span>获取方式</span>
-                    <span id="jd-cookie-source">-</span>
+                <div class="panel-header">
+                    <div class="panel-logo">🍑</div>
+                    <div class="panel-title">
+                        <h3>京东 Cookie 助手</h3>
+                        <p>一键同步登录态到青龙面板</p>
+                    </div>
+                    <span class="panel-badge">v1.2.0</span>
                 </div>
 
-                <div class="cookie-preview" id="cookie-preview">
-                    点击"提取Cookie"按钮获取...
+                <div class="tab-bar" role="tablist">
+                    <button class="tab-btn active" data-tab="cookie" role="tab" aria-selected="true">🔐 获取 Cookie</button>
+                    <button class="tab-btn" data-tab="config" role="tab" aria-selected="false">⚙️ 青龙配置</button>
                 </div>
 
-                <div id="status-box"></div>
+                <div class="panel-body">
+                    <div id="status-box"></div>
 
-                <div class="btn-group">
-                    <button class="btn-primary" id="btn-extract">🔍 提取Cookie</button>
-                    <button class="btn-secondary" id="btn-copy">📋 复制</button>
-                </div>
+                    <section class="tab-panel active" data-panel="cookie">
+                        <div class="account-card">
+                            <div class="cookie-info">
+                                <span>账号</span>
+                                <span id="jd-pin">未检测到登录</span>
+                            </div>
+                            <div class="cookie-info">
+                                <span>Cookie 状态</span>
+                                <span id="jd-cookie-status" style="color: #d48806;">⏳ 检测中...</span>
+                            </div>
+                            <div class="cookie-info">
+                                <span>获取方式</span>
+                                <span id="jd-cookie-source">-</span>
+                            </div>
+                        </div>
 
-                <div class="btn-group">
-                    <button class="btn-primary" id="btn-send-qinglong" style="flex: 2;">🚀 发送到青龙</button>
-                    <button class="btn-secondary" id="btn-refresh">🔄 刷新</button>
-                </div>
+                        <div class="cookie-preview" id="cookie-preview">点击「提取 Cookie」获取登录凭证...</div>
 
-                <div class="btn-group">
-                    <button class="btn-secondary" id="btn-open-login" style="width: 100%;">📱 打开移动端京东登录页</button>
-                </div>
+                        <div class="btn-group">
+                            <button class="btn-primary" id="btn-extract">🔍 提取 Cookie</button>
+                            <button class="btn-secondary" id="btn-copy">📋 复制</button>
+                        </div>
 
-                <div class="config-section">
-                    <label>青龙面板地址</label>
-                    <input type="text" id="qinglong-url" placeholder="http://localhost:5700">
+                        <div class="btn-group">
+                            <button class="btn-primary" id="btn-send-qinglong" style="flex: 2;">🚀 发送到青龙</button>
+                            <button class="btn-secondary" id="btn-refresh">🔄 刷新</button>
+                        </div>
 
-                    <label style="margin-top: 10px;">青龙用户名</label>
-                    <input type="text" id="qinglong-username" placeholder="用户名">
+                        <div class="btn-group">
+                            <button class="btn-ghost btn-full" id="btn-open-login">📱 打开移动端京东登录页</button>
+                        </div>
 
-                    <label style="margin-top: 10px;">青龙密码</label>
-                    <input type="password" id="qinglong-password" placeholder="密码">
+                        <details class="manual-box">
+                            <summary>自动获取失败？手动粘贴 Cookie</summary>
+                            <div class="manual-inner">
+                                <textarea id="manual-cookie" placeholder="pt_key=AAJ...; pt_pin=jd_xxx;"></textarea>
+                                <button class="btn-secondary btn-full" id="btn-use-manual">✅ 使用此 Cookie</button>
+                            </div>
+                        </details>
+                    </section>
 
-                    <button class="btn-secondary" id="btn-save-config" style="margin-top: 10px; width: 100%;">💾 保存配置</button>
-                </div>
+                    <section class="tab-panel" data-panel="config">
+                        <div class="field">
+                            <label>青龙面板地址</label>
+                            <input type="text" id="qinglong-url" placeholder="http://localhost:5700">
+                        </div>
+                        <div class="field">
+                            <label>青龙用户名</label>
+                            <input type="text" id="qinglong-username" placeholder="用户名">
+                        </div>
+                        <div class="field">
+                            <label>青龙密码</label>
+                            <input type="password" id="qinglong-password" placeholder="密码">
+                        </div>
 
-                <div class="config-section">
-                    <label>手动粘贴 Cookie（自动获取失败时使用）</label>
-                    <textarea id="manual-cookie" placeholder="pt_key=AAJ...; pt_pin=jd_xxx;"></textarea>
-                    <button class="btn-secondary" id="btn-use-manual" style="margin-top: 8px; width: 100%;">✅ 使用此 Cookie</button>
-                </div>
+                        <button class="btn-primary btn-full" id="btn-save-config">💾 保存配置</button>
 
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; text-align: center;">
-                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #888;">💖 免费应用 · 自愿赞助 · 感谢支持</p>
-                    <button class="btn-sponsor" id="btn-sponsor" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 13px;">🎁 赞赏支持</button>
+                        <div class="hint">
+                            青龙地址可只填 <b>localhost:5700</b>，脚本会自动补全 http://<br>
+                            账号密码仅保存在浏览器本地，不会上传到第三方。
+                        </div>
+
+                        <div class="sponsor-box">
+                            <p>💖 免费应用 · 自愿赞助 · 感谢支持</p>
+                            <button class="btn-sponsor" id="btn-sponsor">🎁 赞赏支持</button>
+                        </div>
+                    </section>
                 </div>
             `;
             document.body.appendChild(panel);
@@ -614,6 +1050,11 @@
 
             // 按钮点击显示面板
             el.btn.addEventListener('click', () => this.showPanel());
+
+            // 页签切换
+            el.panel.querySelectorAll('.tab-btn').forEach((tabBtn) => {
+                tabBtn.addEventListener('click', () => this.switchTab(tabBtn.dataset.tab));
+            });
 
             // 关闭面板
             el.closeBtn.addEventListener('click', () => this.hidePanel());
@@ -675,6 +1116,19 @@
         hidePanel() {
             this.elements.overlay.classList.remove('show');
             this.elements.panel.classList.remove('show');
+        }
+
+        // 切换页签：cookie | config
+        switchTab(tab) {
+            const panel = this.elements.panel;
+            panel.querySelectorAll('.tab-btn').forEach((btn) => {
+                const active = btn.dataset.tab === tab;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+            panel.querySelectorAll('.tab-panel').forEach((section) => {
+                section.classList.toggle('active', section.dataset.panel === tab);
+            });
         }
 
         // 自动提取Cookie
@@ -1006,7 +1460,8 @@
             const password = el.qinglongPassword.value.trim();
 
             if (!url || !username || !password) {
-                this.showStatus('请先填写青龙面板地址、用户名和密码！', 'warning');
+                this.switchTab('config');
+                this.showStatus('请先在「青龙配置」中填写面板地址、用户名和密码。', 'warning');
                 return;
             }
 
