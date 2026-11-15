@@ -18,9 +18,7 @@
    - Edge: https://microsoftedge.microsoft.com/addons/detail/tampermonkey
    - Firefox: https://addons.mozilla.org/firefox/addon/tampermonkey/
 
-手工安装可以浏览器访问链接
-https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/d-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
-
+之后点击油猴图标，选管理面板，选设置标签，配置模式选「高级」，在下方的安全标签
 
 2. 已部署 **青龙面板**
    - 如果还没有安装青龙面板，推荐使用 Docker 部署
@@ -36,11 +34,10 @@ https://www.tampermonkey.net/script_installation.php#url=https://github.com/juny
 
 ### 方法二：手动安装
 
-1. 下载本仓库中的 `jd-cookie-helper.user.js` 文件
+1. 浏览器访问链接
+https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/d-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
 2. 打开 Tampermonkey 扩展管理页面
-3. 点击"实用工具"选项卡
-4. 将文件URL粘贴到"从URL安装"输入框
-5. 点击"安装"
+3. 点击"安装"
 
 ## 使用教程
 
@@ -50,7 +47,7 @@ https://www.tampermonkey.net/script_installation.php#url=https://github.com/juny
 
 ### 第二步：访问京东并登录
 
-> ⚠️ **重要**：必须使用**移动端网站** `https://m.jd.com/` 登录京东账号
+> ⚠️ **重要**：必须使用**移动端网站** `https://my.m.jd.com/` 登录京东账号
 
 1. 在浏览器中打开 `https://m.jd.com/`
 2. 使用账号密码或扫码登录京东
@@ -58,7 +55,7 @@ https://www.tampermonkey.net/script_installation.php#url=https://github.com/juny
 
 ### 第三步：配置青龙面板
 
-1. 点击页面右下角的 🍑 按钮打开助手面板
+1. 点击页面右上角的 🍑 按钮打开助手面板
 2. 在面板中填写青龙面板配置：
    - **青龙面板地址**: 例如 `http://localhost:5700`
    - **青龙用户名**: 你的青龙登录用户名
@@ -69,8 +66,8 @@ https://www.tampermonkey.net/script_installation.php#url=https://github.com/juny
 
 1. 确保已在移动端京东网站登录
 2. 点击"提取Cookie"按钮
-3. Cookie状态显示"✅ 已获取"后，点击"发送到青龙"
-4. 等待发送成功提示
+3. Cookie状态显示"✅ 已获取"后，点击"发送到青龙"，会根据当前对应的用户进行更新，如不存在则新增用户
+4. 等待发送成功提示，当出现"一个用户脚本试图访问跨源资源"，选"总是允许"
 
 ### 第五步：验证配置
 
@@ -113,7 +110,13 @@ A: 本脚本：
 
 ## 更新日志
 
-### v1.0
+### v1.2.0
+- 重新对弹窗布局调整
+  
+### v1.1.0
+- 修复判断逻辑
+
+### v1.0.0
 - 初始版本发布
 - 支持HttpOnly Cookie读取
 - 支持一键发送到青龙面板
