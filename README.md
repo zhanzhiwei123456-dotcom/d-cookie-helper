@@ -27,18 +27,12 @@
 
 ## 安装步骤
 
-### 方法一：GreasyFork 安装（推荐）
-
-1. 访问 [GreasyFork 脚本页面](https://greasyfork.org/scripts/你的脚本ID)
-2. 点击"安装此脚本"
-3. 浏览器扩展会自动识别并安装
-
-### 方法二：手动安装
+### 手动安装
 
 1. 浏览器访问链接
 https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/d-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
 2. 打开 Tampermonkey 扩展管理页面
-3. 点击"安装"
+3. 点击"安装"或"更新"
 
 ## 使用教程
 
