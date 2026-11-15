@@ -1,6 +1,7 @@
 # 京东Cookie助手 - 青龙面板自动配置
 
 > 一键获取京东Cookie并自动配置到青龙面板，省时省力！
+> 原作者：https://github.com/zhanzhiwei123456-dotcom/d-cookie-helper/
 
 ## 功能特点
 
@@ -16,6 +17,10 @@
    - Chrome: https://chrome.google.com/webstore/detail/tampermonkey
    - Edge: https://microsoftedge.microsoft.com/addons/detail/tampermonkey
    - Firefox: https://addons.mozilla.org/firefox/addon/tampermonkey/
+
+手工安装可以浏览器访问链接
+https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/d-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
+
 
 2. 已部署 **青龙面板**
    - 如果还没有安装青龙面板，推荐使用 Docker 部署
