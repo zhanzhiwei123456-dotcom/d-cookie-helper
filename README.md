@@ -76,7 +76,7 @@ https://www.tampermonkey.net/script_installation.php#url=https://github.com/juny
 
 ### Q: 为什么必须用手机端网站？
 
-A: 京东在手机端（https://my.m.jd.com）会设置 `pt_key` 和 `pt_pin` 这两个Cookie，而电脑端京东网站可能不会设置或设置了不同的Cookie格式。青龙面板的京东脚本需要这两个字段才能正常工作。
+A: 京东在手机端网站 https://my.m.jd.com 会设置 `pt_key` 和 `pt_pin` 这两个Cookie，而电脑端京东网站可能不会设置或设置了不同的Cookie格式。青龙面板的京东脚本需要这两个字段才能正常工作。
 
 ### Q: GM_cookie 是什么？
 
