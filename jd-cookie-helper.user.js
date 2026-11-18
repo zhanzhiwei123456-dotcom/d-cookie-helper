@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         京东Cookie一键配置到青龙
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      1.2.2
 // @description  一键获取京东Cookie并自动配置到青龙面板，支持电脑端和移动端
 // @author       JD Helper
 // @match        https://jd.com/*
@@ -1081,7 +1081,7 @@
                         <h3>京东 Cookie 助手</h3>
                         <p>一键同步登录态到青龙面板</p>
                     </div>
-                    <span class="panel-badge">v1.2.1</span>
+                    <span class="panel-badge">v1.2.2</span>
                 </div>
 
                 <div class="tab-bar" role="tablist">
@@ -1604,8 +1604,15 @@
             });
         }
 
-        // 青龙登录，返回 token
-        async loginQinglong(url, username, password) {
+        // 青龙登录，返回 token；优先复用本地缓存的 token
+        // 青龙每次调用 /api/user/login 都会触发面板的「登录通知」，
+        // 缓存 token 后正常提交不会再登录，也就不会重复推送登录通知
+        async loginQinglong(url, username, password, force) {
+            if (!force) {
+                const cached = this.getCachedToken(url, username);
+                if (cached) return cached;
+            }
+
             const { data } = await this.requestQinglong(
                 'POST',
                 `${url}/api/user/login`,
@@ -1620,7 +1627,40 @@
             if (!token) {
                 throw new Error('青龙登录成功但未返回 Token');
             }
+            this.cacheToken(url, username, token);
             return token;
+        }
+
+        // 缓存的 token 仅在「同地址 + 同用户名」且未过期时复用
+        getCachedToken(url, username) {
+            const cached = getStored('qinglong_token', '');
+            if (!cached) return '';
+            if (getStored('qinglong_token_url', '') !== url) return '';
+            if (getStored('qinglong_token_user', '') !== username) return '';
+            const cachedAt = Number(getStored('qinglong_token_time', 0)) || 0;
+            // 保守按 5 天复用，失败时再由调用方清缓存重新登录
+            if (!cachedAt || Date.now() - cachedAt > 5 * 24 * 60 * 60 * 1000) return '';
+            return cached;
+        }
+
+        cacheToken(url, username, token) {
+            setStored('qinglong_token', token);
+            setStored('qinglong_token_url', url);
+            setStored('qinglong_token_user', username);
+            setStored('qinglong_token_time', Date.now());
+        }
+
+        clearCachedToken() {
+            setStored('qinglong_token', '');
+            setStored('qinglong_token_url', '');
+            setStored('qinglong_token_user', '');
+            setStored('qinglong_token_time', 0);
+        }
+
+        // 判断是否为 token 失效类错误（jwt expired / 401 等）
+        isAuthError(error) {
+            const message = String(error && error.message ? error.message : error);
+            return /jwt|token|登录|401|unauthorized/i.test(message);
         }
 
         // 启用环境变量（失败不影响主流程）
@@ -1761,19 +1801,35 @@
             this.saveConfig(true);
 
             el.btnSend.classList.add('sending');
-            this.showStatus('正在登录青龙...', 'warning');
+            this.showStatus('正在连接青龙...', 'warning');
 
             try {
-                const token = await this.loginQinglong(url, username, password);
-                this.showStatus('登录成功，正在写入 JD_COOKIE...', 'warning');
+                let token = await this.loginQinglong(url, username, password);
+                this.showStatus('正在写入 JD_COOKIE...', 'warning');
 
-                const resultMessage = await this.upsertJDCOOKIE(
-                    url,
-                    token,
-                    this.cookieString,
-                    this.cookieData.pt_pin,
-                    this.cookieData.pt_pin_decoded
-                );
+                let resultMessage;
+                try {
+                    resultMessage = await this.upsertJDCOOKIE(
+                        url,
+                        token,
+                        this.cookieString,
+                        this.cookieData.pt_pin,
+                        this.cookieData.pt_pin_decoded
+                    );
+                } catch (error) {
+                    // 缓存的 token 失效时才重新登录（会触发一次青龙登录通知）
+                    if (!this.isAuthError(error)) throw error;
+                    this.clearCachedToken();
+                    this.showStatus('登录状态已失效，正在重新登录...', 'warning');
+                    token = await this.loginQinglong(url, username, password, true);
+                    resultMessage = await this.upsertJDCOOKIE(
+                        url,
+                        token,
+                        this.cookieString,
+                        this.cookieData.pt_pin,
+                        this.cookieData.pt_pin_decoded
+                    );
+                }
 
                 this.showStatus(`✅ ${resultMessage}，青龙环境变量已生效。`, 'success');
                 this.notifySuccess();
