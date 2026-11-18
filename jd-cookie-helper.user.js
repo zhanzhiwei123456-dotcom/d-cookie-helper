@@ -1831,7 +1831,7 @@
                     );
                 }
 
-                this.showStatus(`✅ ${resultMessage}，青龙环境变量已生效。`, 'success');
+                this.showStatus(`${resultMessage}，青龙环境变量已生效。`, 'success');
                 this.notifySuccess();
             } catch (error) {
                 console.error('【京东Cookie助手】发送失败:', error);
