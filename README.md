@@ -18,10 +18,11 @@
 ## 使用前提
 
 1. 安装脚本管理器（任选其一）
+
    - **Tampermonkey 5.3+**：Chrome / Edge / Firefox
-     - Chrome: https://chrome.google.com/webstore/detail/tampermonkey
-     - Edge: https://microsoftedge.microsoft.com/addons/detail/tampermonkey
-     - Firefox: https://addons.mozilla.org/firefox/addon/tampermonkey/
+     - Chrome: <https://chrome.google.com/webstore/detail/tampermonkey>
+     - Edge: <https://microsoftedge.microsoft.com/addons/detail/tampermonkey>
+     - Firefox: <https://addons.mozilla.org/firefox/addon/tampermonkey/>
    - **Violentmonkey** 或 **ScriptCat**（对 HttpOnly Cookie 支持更直接）
 
    > ⚠️ 京东的 `pt_key` 是 **HttpOnly Cookie**，普通 `document.cookie` 读不到。
@@ -31,14 +32,12 @@
 
 2. 已部署 **青龙面板**
    - 如果还没有安装青龙面板，推荐使用 Docker 部署
-   - 部署教程: https://github.com/whyour/qinglong
+   - 部署教程: <https://github.com/whyour/qinglong>
 
-## 安装步骤
+## 安装及更新
 
-### 手动安装
-
-1. 一键安装链接（Tampermonkey 会直接弹出安装页）：
-   https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/jd-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js
+1. 一键安装更新链接（Tampermonkey 会直接弹出安装更新页）：
+   <https://www.tampermonkey.net/script_installation.php#url=https://github.com/junyi5d/jd-cookie-helper/raw/refs/heads/main/jd-cookie-helper.user.js>
 2. 或下载本仓库中的 `jd-cookie-helper.user.js` 文件
 3. 打开 Tampermonkey 扩展管理页面
 4. 点击"实用工具"选项卡
@@ -77,6 +76,7 @@
 5. 等待发送成功提示
 
 > 若自动获取失败，面板会给出具体原因。此时可：
+>
 > - 按提示开启脚本管理器的 HttpOnly Cookie 权限后重试；或
 > - 在「获取 Cookie」页签底部展开「自动获取失败？手动粘贴 Cookie」，粘贴 `pt_key=...; pt_pin=...;` 后点击「使用此 Cookie」。
 
@@ -96,6 +96,7 @@ A: 京东在移动端（`m.jd.com` / `home.m.jd.com`）登录后一定会写入 
 ### Q: 为什么读取不到 `pt_key`（只读到其他 Cookie）？
 
 A: `pt_key` 是 **HttpOnly Cookie**，必须通过脚本管理器的 Cookie API 才能读取：
+
 1. **Tampermonkey**：升级到 5.3 及以上，并在设置中开启「允许访问 HttpOnly Cookie」；必要时安装 Tampermonkey Beta。
 2. **Violentmonkey**：在扩展设置和脚本设置中开启 HTTP-only Cookie 权限。
 3. **ScriptCat**：默认支持。
@@ -104,6 +105,7 @@ A: `pt_key` 是 **HttpOnly Cookie**，必须通过脚本管理器的 Cookie API 
 ### Q: 提示"Cookie不完整"怎么办？
 
 A: 请确保：
+
 1. 已在 `https://m.jd.com/` 或 `https://home.m.jd.com/myJd/newhome.action` 登录京东账号
 2. 已按上面的说明开启 HttpOnly Cookie 权限
 3. 刷新页面后重新点击"提取Cookie"，或使用手动粘贴
@@ -111,12 +113,14 @@ A: 请确保：
 ### Q: 发送到青龙后会创建重复的 `JD_COOKIE` 吗？
 
 A: 不会。脚本会先查询已有 `JD_COOKIE`，并按 `pt_pin` 判断账号：
+
 - 同一账号：替换原值；
 - 新账号：以换行追加到已有变量末尾，支持多账号。
 
 ### Q: 提示"jwt malformed"或登录失败？
 
 A: 这是青龙面板认证问题，请确认：
+
 1. 青龙面板地址是否正确（可只填 `localhost:5700`，脚本会自动补 `http://`）
 2. 用户名和密码是否正确
 3. 青龙面板是否可以正常访问
@@ -125,47 +129,11 @@ A: 这是青龙面板认证问题，请确认：
 ### Q: Cookie信息安全吗？
 
 A: 本脚本：
+
 - ✅ 只在你的浏览器本地运行
 - ✅ Cookie信息只发送到你自己配置的青龙面板
 - ✅ 不会上传到任何第三方服务器
 - ✅ 脚本代码开源可审查
-
-## 更新日志
-
-### v1.2.2
-- 修复每次发送都触发青龙「登录通知」的问题：缓存登录 Token，正常提交不再重复调用 `/api/user/login`
-  - Token 按「面板地址 + 用户名」缓存 5 天，失效时自动重新登录并重试一次
-  - 只有首次使用、Token 过期或修改了面板地址/用户名时才会登录
-
-### v1.2.1
-- 「青龙配置」页签新增「消息通知」开关：可关闭发送成功后的系统通知（设置保存在本地）
-- 修复 360 极速浏览器等内核下弹窗显示在左上角、赞赏弹窗不显示的问题：
-  - 样式改用 GM_addStyle + 原生 `<style>` 双重注入，避免脚本管理器不支持 GM_addStyle 时界面失去样式
-  - 面板挂载到 `<html>` 并改用遮罩 flex 居中 + 内联关键定位样式
-  - 赞赏弹窗改为 JS 计算坐标居中（不依赖 `translate(-50%,-50%)`），并在窗口尺寸变化时重新居中
-- 配置读写增加 localStorage 兜底，脚本管理器存储 API 不可用时仍可保存
-
-### v1.2.0
-- 面板界面重做：渐变头部、账户信息卡片、按钮与输入框全面美化
-- 配置与获取拆分为「🔐 获取 Cookie」「⚙️ 青龙配置」两个页签
-- 页签切换带过渡动画，面板支持内容区滚动与移动端适配
-- 发送时若未配置青龙，自动跳转到配置页签并提示
-- 赞赏二维码更新：微信支付与支付宝裁剪后合并为一张图，去除卡片背景与多余文字，微信码中心改为微信图标
-- 修复面板右上角关闭按钮悬停时「×」偏离中心的问题（改用 SVG 图标）
-
-### v1.1.0
-- 修复无法获取京东 Cookie 的问题：改为跨 `.jd.com` 各子域查询，兼容 Tampermonkey / Violentmonkey / ScriptCat 三种 Cookie API 形态
-- 增加失败原因诊断：区分「未登录」「HttpOnly 权限未开启」「管理器不支持」，并给出对应解决方式
-- 增加「打开移动端京东登录页」和「手动粘贴 Cookie」兜底入口
-- 修复发送青龙时重复创建 `JD_COOKIE` 的问题：按 `pt_pin` 更新或追加，支持多账号
-- 发送前自动保存青龙配置；补充请求超时与错误提示
-- 增加 `@updateURL` / `@downloadURL`，便于自动更新
-
-### v1.0
-- 初始版本发布
-- 支持HttpOnly Cookie读取
-- 支持一键发送到青龙面板
-- 添加赞助功能
 
 ## 免责声明
 
@@ -184,6 +152,6 @@ A: 本脚本：
 
 点击脚本面板底部的"🎁 赞赏支持"按钮查看二维码。
 
----
+***
 
 *如果觉得好用，请给个 Star ⭐*
